@@ -11,6 +11,8 @@ import {
 import type { Route } from "./+types/root";
 import "./app.css";
 
+export const meta: Route.MetaFunction = () => [{ title: "Members Only" }];
+
 export const links: Route.LinksFunction = () => [
   {
     rel: "icon",
