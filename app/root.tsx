@@ -8,6 +8,7 @@ import {
   ScrollRestoration,
   useRouteLoaderData,
 } from "react-router";
+import { Toaster } from "sonner";
 import { buttonVariants } from "~/components/ui/button";
 import {
   NavigationMenu,
@@ -143,6 +144,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           </header>
           {children}
         </div>
+        <Toaster position="top-right" richColors />
         <ScrollRestoration />
         <Scripts />
       </body>

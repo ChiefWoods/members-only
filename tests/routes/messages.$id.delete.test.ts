@@ -42,8 +42,7 @@ describe("messages.$id.delete action", () => {
 
     expect(mockedRequireAdmin).toHaveBeenCalledWith(req);
     expect(deleteMessageMock).toHaveBeenCalledWith({ where: { id: "m1" } });
-    expect(response.status).toBe(302);
-    expect(response.headers.get("Location")).toBe("/");
+    expect(response).toEqual({ success: true });
   });
 
   it("throws 400 when id param missing", async () => {
