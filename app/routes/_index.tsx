@@ -42,7 +42,7 @@ export default function HomeRoute() {
         {data.viewer && (
           <div className="mt-3 flex items-center gap-3 text-sm">
             <span>
-              Signed in as <strong>{data.viewer.email}</strong>
+              Signed in as <strong>{data.viewer.name}</strong>
             </span>
             <Link className="underline" to="/logout">
               Logout
