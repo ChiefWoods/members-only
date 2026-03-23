@@ -23,6 +23,7 @@
     "docker:test-db:reset": "docker compose --profile test down -v",
     "db:migrate": "bunx --bun prisma migrate dev --name init",
     "db:generate": "bunx --bun prisma generate",
+    "db:seed": "bun run prisma/seed.ts",
     "db:studio": "bunx prisma studio",
     "prepare": "husky"
   },
