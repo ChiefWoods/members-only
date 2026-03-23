@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Trash2Icon } from "lucide-react";
 import { Link, useFetcher, useLoaderData } from "react-router";
+import { toast } from "sonner";
 import { FormSubmitButton } from "~/components/form-submit-button";
 import { Button } from "~/components/ui/button";
 import {
@@ -50,12 +51,19 @@ export default function HomeRoute() {
     fieldErrors?: { title?: string; body?: string };
     success?: boolean;
   }>();
+  const deleteFetcher = useFetcher<{ success?: boolean }>();
 
   useEffect(() => {
     if (fetcher.data?.success) {
       setNewMessageDialogOpen(false);
     }
   }, [fetcher.data?.success]);
+
+  useEffect(() => {
+    if (deleteFetcher.data?.success) {
+      toast.success("Message deleted.");
+    }
+  }, [deleteFetcher.data?.success]);
 
   return (
     <main className="space-y-4">
@@ -88,7 +96,7 @@ export default function HomeRoute() {
         {data.messages.map((message) => (
           <article className="relative rounded border p-4" key={message.id}>
             {data.canDelete && (
-              <Form
+              <deleteFetcher.Form
                 action={`/messages/${message.id}/delete`}
                 className="absolute top-3 right-3"
                 method="post"
@@ -96,13 +104,14 @@ export default function HomeRoute() {
                 <Button
                   aria-label="Delete message"
                   className="cursor-pointer text-red-600 hover:text-red-700"
+                  disabled={deleteFetcher.state === "submitting"}
                   size="icon-sm"
                   type="submit"
                   variant="ghost"
                 >
                   <Trash2Icon />
                 </Button>
-              </Form>
+              </deleteFetcher.Form>
             )}
             <h2 className="font-semibold">{message.title}</h2>
             <p className="mt-2 whitespace-pre-wrap">{message.body}</p>

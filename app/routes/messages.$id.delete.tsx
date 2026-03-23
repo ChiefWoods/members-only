@@ -1,4 +1,3 @@
-import { redirect } from "react-router";
 import { requireAdmin } from "~/lib/guards.server";
 import { prisma } from "~/lib/prisma.server";
 
@@ -14,5 +13,5 @@ export async function action({ request, params }: { request: Request; params: { 
     where: { id },
   });
 
-  return redirect("/");
+  return { success: true } as const;
 }
