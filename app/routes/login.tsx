@@ -1,5 +1,7 @@
 import { Form, Link, useActionData } from "react-router";
 import { FormSubmitButton } from "~/components/form-submit-button";
+import { Field, FieldGroup, FieldLabel } from "~/components/ui/field";
+import { Input } from "~/components/ui/input";
 import { auth } from "~/lib/auth.server";
 
 type ActionData = {
@@ -30,19 +32,16 @@ export default function LoginRoute() {
     <main className="mx-auto max-w-md rounded border p-4">
       <h1 className="mb-3 text-xl font-semibold">Login</h1>
       <Form className="space-y-3" method="post">
-        <label className="block text-sm">
-          Email
-          <input className="mt-1 w-full rounded border p-2" name="email" required type="email" />
-        </label>
-        <label className="block text-sm">
-          Password
-          <input
-            className="mt-1 w-full rounded border p-2"
-            name="password"
-            required
-            type="password"
-          />
-        </label>
+        <FieldGroup>
+          <Field>
+            <FieldLabel htmlFor="login-email">Email</FieldLabel>
+            <Input id="login-email" name="email" required type="email" />
+          </Field>
+          <Field>
+            <FieldLabel htmlFor="login-password">Password</FieldLabel>
+            <Input id="login-password" name="password" required type="password" />
+          </Field>
+        </FieldGroup>
         {actionData?.error && <p className="text-sm text-red-600">{actionData.error}</p>}
         <FormSubmitButton>Log in</FormSubmitButton>
       </Form>

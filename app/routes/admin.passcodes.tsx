@@ -1,6 +1,8 @@
 import { Form, useActionData } from "react-router";
 import { PasscodeKind } from "../../generated/prisma/enums";
 import { FormSubmitButton } from "~/components/form-submit-button";
+import { Field, FieldGroup, FieldLabel } from "~/components/ui/field";
+import { Input } from "~/components/ui/input";
 import { requireAdmin } from "~/lib/guards.server";
 import { setPasscode } from "~/lib/passcodes.server";
 
@@ -55,14 +57,16 @@ export default function AdminPasscodesRoute() {
         Update the member/admin passcodes. Leave a field blank to keep it unchanged.
       </p>
       <Form className="space-y-3" method="post">
-        <label className="block text-sm">
-          New member passcode
-          <input className="mt-1 w-full rounded border p-2" name="memberPasscode" type="password" />
-        </label>
-        <label className="block text-sm">
-          New admin passcode
-          <input className="mt-1 w-full rounded border p-2" name="adminPasscode" type="password" />
-        </label>
+        <FieldGroup>
+          <Field>
+            <FieldLabel htmlFor="member-passcode">New member passcode</FieldLabel>
+            <Input id="member-passcode" name="memberPasscode" type="password" />
+          </Field>
+          <Field>
+            <FieldLabel htmlFor="admin-passcode">New admin passcode</FieldLabel>
+            <Input id="admin-passcode" name="adminPasscode" type="password" />
+          </Field>
+        </FieldGroup>
         {actionData?.error && <p className="text-sm text-red-600">{actionData.error}</p>}
         {actionData?.success && <p className="text-sm text-green-700">{actionData.success}</p>}
         <FormSubmitButton>Save passcodes</FormSubmitButton>

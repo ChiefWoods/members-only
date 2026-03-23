@@ -1,6 +1,8 @@
 import { Form, useActionData } from "react-router";
 import { PasscodeKind } from "../../generated/prisma/enums";
 import { FormSubmitButton } from "~/components/form-submit-button";
+import { Field, FieldGroup, FieldLabel } from "~/components/ui/field";
+import { Input } from "~/components/ui/input";
 import { verifyPasscode } from "~/lib/passcodes.server";
 import { prisma } from "~/lib/prisma.server";
 import { requireUser } from "~/lib/guards.server";
@@ -42,15 +44,12 @@ export default function JoinClubRoute() {
         Enter the member passcode to reveal author and date metadata.
       </p>
       <Form className="space-y-3" method="post">
-        <label className="block text-sm">
-          Member passcode
-          <input
-            className="mt-1 w-full rounded border p-2"
-            name="passcode"
-            required
-            type="password"
-          />
-        </label>
+        <FieldGroup>
+          <Field>
+            <FieldLabel htmlFor="member-passcode">Member passcode</FieldLabel>
+            <Input id="member-passcode" name="passcode" required type="password" />
+          </Field>
+        </FieldGroup>
         {actionData?.error && <p className="text-sm text-red-600">{actionData.error}</p>}
         {actionData?.success && <p className="text-sm text-green-700">{actionData.success}</p>}
         <FormSubmitButton>Join</FormSubmitButton>

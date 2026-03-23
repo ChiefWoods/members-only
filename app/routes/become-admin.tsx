@@ -1,6 +1,8 @@
 import { Form, useActionData } from "react-router";
 import { PasscodeKind } from "../../generated/prisma/enums";
 import { FormSubmitButton } from "~/components/form-submit-button";
+import { Field, FieldGroup, FieldLabel } from "~/components/ui/field";
+import { Input } from "~/components/ui/input";
 import { requireUser } from "~/lib/guards.server";
 import { verifyPasscode } from "~/lib/passcodes.server";
 import { prisma } from "~/lib/prisma.server";
@@ -45,15 +47,12 @@ export default function BecomeAdminRoute() {
         Enter the admin passcode to gain message delete access and passcode management.
       </p>
       <Form className="space-y-3" method="post">
-        <label className="block text-sm">
-          Admin passcode
-          <input
-            className="mt-1 w-full rounded border p-2"
-            name="passcode"
-            required
-            type="password"
-          />
-        </label>
+        <FieldGroup>
+          <Field>
+            <FieldLabel htmlFor="admin-passcode">Admin passcode</FieldLabel>
+            <Input id="admin-passcode" name="passcode" required type="password" />
+          </Field>
+        </FieldGroup>
         {actionData?.error && <p className="text-sm text-red-600">{actionData.error}</p>}
         {actionData?.success && <p className="text-sm text-green-700">{actionData.success}</p>}
         <FormSubmitButton>Become Admin</FormSubmitButton>

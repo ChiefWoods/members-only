@@ -1,5 +1,7 @@
 import { Form, Link, useActionData } from "react-router";
 import { FormSubmitButton } from "~/components/form-submit-button";
+import { Field, FieldGroup, FieldLabel } from "~/components/ui/field";
+import { Input } from "~/components/ui/input";
 import { auth } from "~/lib/auth.server";
 
 type ActionData = {
@@ -42,34 +44,30 @@ export default function SignUpRoute() {
     <main className="mx-auto max-w-md rounded border p-4">
       <h1 className="mb-3 text-xl font-semibold">Create account</h1>
       <Form className="space-y-3" method="post">
-        <label className="block text-sm">
-          Full name
-          <input className="mt-1 w-full rounded border p-2" name="name" required type="text" />
-        </label>
-        <label className="block text-sm">
-          Email
-          <input className="mt-1 w-full rounded border p-2" name="email" required type="email" />
-        </label>
-        <label className="block text-sm">
-          Password
-          <input
-            className="mt-1 w-full rounded border p-2"
-            minLength={8}
-            name="password"
-            required
-            type="password"
-          />
-        </label>
-        <label className="block text-sm">
-          Confirm password
-          <input
-            className="mt-1 w-full rounded border p-2"
-            minLength={8}
-            name="confirmPassword"
-            required
-            type="password"
-          />
-        </label>
+        <FieldGroup>
+          <Field>
+            <FieldLabel htmlFor="signup-name">Full name</FieldLabel>
+            <Input id="signup-name" name="name" required type="text" />
+          </Field>
+          <Field>
+            <FieldLabel htmlFor="signup-email">Email</FieldLabel>
+            <Input id="signup-email" name="email" required type="email" />
+          </Field>
+          <Field>
+            <FieldLabel htmlFor="signup-password">Password</FieldLabel>
+            <Input id="signup-password" minLength={8} name="password" required type="password" />
+          </Field>
+          <Field>
+            <FieldLabel htmlFor="signup-confirm-password">Confirm password</FieldLabel>
+            <Input
+              id="signup-confirm-password"
+              minLength={8}
+              name="confirmPassword"
+              required
+              type="password"
+            />
+          </Field>
+        </FieldGroup>
         {actionData?.error && <p className="text-sm text-red-600">{actionData.error}</p>}
         <FormSubmitButton>Sign up</FormSubmitButton>
       </Form>

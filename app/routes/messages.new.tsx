@@ -1,5 +1,8 @@
 import { Form, redirect, useActionData } from "react-router";
 import { FormSubmitButton } from "~/components/form-submit-button";
+import { Field, FieldGroup, FieldLabel } from "~/components/ui/field";
+import { Input } from "~/components/ui/input";
+import { Textarea } from "~/components/ui/textarea";
 import { prisma } from "~/lib/prisma.server";
 import { requireUser } from "~/lib/guards.server";
 
@@ -40,20 +43,16 @@ export default function NewMessageRoute() {
     <main className="mx-auto max-w-lg rounded border p-4">
       <h1 className="mb-3 text-xl font-semibold">Create a New Message</h1>
       <Form className="space-y-3" method="post">
-        <label className="block text-sm">
-          Title
-          <input
-            className="mt-1 w-full rounded border p-2"
-            maxLength={120}
-            name="title"
-            required
-            type="text"
-          />
-        </label>
-        <label className="block text-sm">
-          Message
-          <textarea className="mt-1 min-h-40 w-full rounded border p-2" name="body" required />
-        </label>
+        <FieldGroup>
+          <Field>
+            <FieldLabel htmlFor="message-title">Title</FieldLabel>
+            <Input id="message-title" maxLength={120} name="title" required type="text" />
+          </Field>
+          <Field>
+            <FieldLabel htmlFor="message-body">Message</FieldLabel>
+            <Textarea id="message-body" name="body" required />
+          </Field>
+        </FieldGroup>
         {actionData?.error && <p className="text-sm text-red-600">{actionData.error}</p>}
         <FormSubmitButton>Publish</FormSubmitButton>
       </Form>
