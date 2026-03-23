@@ -3,6 +3,7 @@ import { FormSubmitButton } from "~/components/form-submit-button";
 import { Field, FieldError, FieldGroup, FieldLabel } from "~/components/ui/field";
 import { Input } from "~/components/ui/input";
 import { auth } from "~/lib/auth.server";
+import { prisma } from "~/lib/prisma.server";
 
 type ActionData = {
   formError?: string;
@@ -24,6 +25,16 @@ export async function action({ request }: { request: Request }) {
   if (!password) fieldErrors.password = "Password is required.";
   if (Object.keys(fieldErrors).length > 0) {
     return { fieldErrors } satisfies ActionData;
+  }
+
+  const existingUser = await prisma.user.findUnique({
+    where: { email },
+    select: { id: true },
+  });
+  if (!existingUser) {
+    return {
+      formError: "No account exists for this email. Please sign up first.",
+    } satisfies ActionData;
   }
 
   try {
