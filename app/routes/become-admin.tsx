@@ -1,5 +1,6 @@
 import { Form, useActionData } from "react-router";
 import { PasscodeKind } from "../../generated/prisma/enums";
+import { FormSubmitButton } from "~/components/form-submit-button";
 import { requireUser } from "~/lib/guards.server";
 import { verifyPasscode } from "~/lib/passcodes.server";
 import { prisma } from "~/lib/prisma.server";
@@ -55,9 +56,7 @@ export default function BecomeAdminRoute() {
         </label>
         {actionData?.error && <p className="text-sm text-red-600">{actionData.error}</p>}
         {actionData?.success && <p className="text-sm text-green-700">{actionData.success}</p>}
-        <button className="rounded border px-3 py-2" type="submit">
-          Become Admin
-        </button>
+        <FormSubmitButton>Become Admin</FormSubmitButton>
       </Form>
     </main>
   );

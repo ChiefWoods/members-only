@@ -1,4 +1,5 @@
 import { Form, redirect, useActionData } from "react-router";
+import { FormSubmitButton } from "~/components/form-submit-button";
 import { prisma } from "~/lib/prisma.server";
 import { requireUser } from "~/lib/guards.server";
 
@@ -54,9 +55,7 @@ export default function NewMessageRoute() {
           <textarea className="mt-1 min-h-40 w-full rounded border p-2" name="body" required />
         </label>
         {actionData?.error && <p className="text-sm text-red-600">{actionData.error}</p>}
-        <button className="rounded border px-3 py-2" type="submit">
-          Publish
-        </button>
+        <FormSubmitButton>Publish</FormSubmitButton>
       </Form>
     </main>
   );

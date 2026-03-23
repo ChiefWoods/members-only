@@ -1,4 +1,5 @@
 import { Form, Link, useActionData } from "react-router";
+import { FormSubmitButton } from "~/components/form-submit-button";
 import { auth } from "~/lib/auth.server";
 
 type ActionData = {
@@ -70,9 +71,7 @@ export default function SignUpRoute() {
           />
         </label>
         {actionData?.error && <p className="text-sm text-red-600">{actionData.error}</p>}
-        <button className="rounded border px-3 py-2" type="submit">
-          Sign up
-        </button>
+        <FormSubmitButton>Sign up</FormSubmitButton>
       </Form>
       <p className="mt-3 text-sm">
         Already have an account?{" "}

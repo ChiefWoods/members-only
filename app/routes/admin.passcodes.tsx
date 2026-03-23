@@ -1,5 +1,6 @@
 import { Form, useActionData } from "react-router";
 import { PasscodeKind } from "../../generated/prisma/enums";
+import { FormSubmitButton } from "~/components/form-submit-button";
 import { requireAdmin } from "~/lib/guards.server";
 import { setPasscode } from "~/lib/passcodes.server";
 
@@ -64,9 +65,7 @@ export default function AdminPasscodesRoute() {
         </label>
         {actionData?.error && <p className="text-sm text-red-600">{actionData.error}</p>}
         {actionData?.success && <p className="text-sm text-green-700">{actionData.success}</p>}
-        <button className="rounded border px-3 py-2" type="submit">
-          Save passcodes
-        </button>
+        <FormSubmitButton>Save passcodes</FormSubmitButton>
       </Form>
     </main>
   );
