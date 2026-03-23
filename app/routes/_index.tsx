@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
-import { Form, Link, useFetcher, useLoaderData } from "react-router";
+import { Trash2Icon } from "lucide-react";
+import { Link, useFetcher, useLoaderData } from "react-router";
 import { FormSubmitButton } from "~/components/form-submit-button";
+import { Button } from "~/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -84,7 +86,24 @@ export default function HomeRoute() {
         )}
 
         {data.messages.map((message) => (
-          <article className="rounded border p-4" key={message.id}>
+          <article className="relative rounded border p-4" key={message.id}>
+            {data.canDelete && (
+              <Form
+                action={`/messages/${message.id}/delete`}
+                className="absolute top-3 right-3"
+                method="post"
+              >
+                <Button
+                  aria-label="Delete message"
+                  className="cursor-pointer text-red-600 hover:text-red-700"
+                  size="icon-sm"
+                  type="submit"
+                  variant="ghost"
+                >
+                  <Trash2Icon />
+                </Button>
+              </Form>
+            )}
             <h2 className="font-semibold">{message.title}</h2>
             <p className="mt-2 whitespace-pre-wrap">{message.body}</p>
 
@@ -92,17 +111,6 @@ export default function HomeRoute() {
               <p className="mt-3 text-xs text-neutral-500">
                 By {message.authorName} on {new Date(message.createdAt).toLocaleString()}
               </p>
-            )}
-
-            {data.canDelete && (
-              <Form action={`/messages/${message.id}/delete`} method="post">
-                <button
-                  className="mt-2 cursor-pointer text-sm text-red-600 underline"
-                  type="submit"
-                >
-                  Delete
-                </button>
-              </Form>
             )}
           </article>
         ))}
