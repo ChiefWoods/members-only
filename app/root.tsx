@@ -1,5 +1,6 @@
 import {
   isRouteErrorResponse,
+  Link,
   Links,
   Meta,
   Outlet,
@@ -33,7 +34,23 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        {children}
+        <div className="mx-auto min-h-screen w-full max-w-4xl p-4">
+          <header className="mb-6 flex items-center justify-between border-b pb-3">
+            <Link className="text-lg font-semibold" to="/">
+              Members Only
+            </Link>
+            <nav className="flex gap-3 text-sm">
+              <Link to="/">Home</Link>
+              <Link to="/sign-up">Sign Up</Link>
+              <Link to="/login">Login</Link>
+              <Link to="/messages/new">New Message</Link>
+              <Link to="/join-club">Join Club</Link>
+              <Link to="/become-admin">Become Admin</Link>
+              <Link to="/admin/passcodes">Admin Passcodes</Link>
+            </nav>
+          </header>
+          {children}
+        </div>
         <ScrollRestoration />
         <Scripts />
       </body>
@@ -53,9 +70,7 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   if (isRouteErrorResponse(error)) {
     message = error.status === 404 ? "404" : "Error";
     details =
-      error.status === 404
-        ? "The requested page could not be found."
-        : error.statusText || details;
+      error.status === 404 ? "The requested page could not be found." : error.statusText || details;
   } else if (import.meta.env.DEV && error && error instanceof Error) {
     details = error.message;
     stack = error.stack;
