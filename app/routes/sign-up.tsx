@@ -1,11 +1,17 @@
-import { Form, Link, useActionData } from "react-router";
+import { Form, Link, redirect, useActionData } from "react-router";
 import { FormSubmitButton } from "~/components/form-submit-button";
-import { Field, FieldGroup, FieldLabel } from "~/components/ui/field";
+import { Field, FieldError, FieldGroup, FieldLabel } from "~/components/ui/field";
 import { Input } from "~/components/ui/input";
 import { auth } from "~/lib/auth.server";
 
 type ActionData = {
-  error?: string;
+  formError?: string;
+  fieldErrors?: {
+    name?: string;
+    email?: string;
+    password?: string;
+    confirmPassword?: string;
+  };
 };
 
 export async function action({ request }: { request: Request }) {
@@ -17,24 +23,56 @@ export async function action({ request }: { request: Request }) {
   const password = String(formData.get("password") ?? "");
   const confirmPassword = String(formData.get("confirmPassword") ?? "");
 
-  if (!name || !email || !password || !confirmPassword) {
-    return { error: "All fields are required." } satisfies ActionData;
+  const fieldErrors: ActionData["fieldErrors"] = {};
+  if (!name) fieldErrors.name = "Name is required.";
+  if (!email) fieldErrors.email = "Email is required.";
+  if (!password) fieldErrors.password = "Password is required.";
+  if (!confirmPassword) fieldErrors.confirmPassword = "Confirm password is required.";
+
+  if (Object.keys(fieldErrors).length > 0) {
+    return { fieldErrors } satisfies ActionData;
   }
   if (password !== confirmPassword) {
-    return { error: "Passwords do not match." } satisfies ActionData;
+    return { fieldErrors: { confirmPassword: "Passwords do not match." } } satisfies ActionData;
   }
   if (password.length < 8) {
-    return { error: "Password must be at least 8 characters." } satisfies ActionData;
+    return {
+      fieldErrors: { password: "Password must be at least 8 characters." },
+    } satisfies ActionData;
   }
 
-  return auth.api.signUpEmail({
-    body: {
-      name,
-      email,
-      password,
-    },
-    asResponse: true,
-  });
+  try {
+    const response = await auth.api.signUpEmail({
+      body: {
+        name,
+        email,
+        password,
+      },
+      asResponse: true,
+    });
+
+    if (response.ok) {
+      const headers = new Headers();
+      const setCookie = response.headers.get("set-cookie");
+      if (setCookie) {
+        headers.append("set-cookie", setCookie);
+      }
+      return redirect("/", { headers });
+    }
+
+    let message = "Unable to sign up. Try a different email.";
+    try {
+      const data = (await response.json()) as { message?: string };
+      if (data?.message) {
+        message = data.message;
+      }
+    } catch {
+      // Keep default message if response body is not JSON.
+    }
+    return { formError: message } satisfies ActionData;
+  } catch {
+    return { formError: "Unable to sign up. Try a different email." } satisfies ActionData;
+  }
 }
 
 export default function SignUpRoute() {
@@ -46,16 +84,19 @@ export default function SignUpRoute() {
       <Form className="space-y-3" method="post">
         <FieldGroup>
           <Field>
-            <FieldLabel htmlFor="signup-name">Full name</FieldLabel>
+            <FieldLabel htmlFor="signup-name">Name</FieldLabel>
             <Input id="signup-name" name="name" required type="text" />
+            <FieldError>{actionData?.fieldErrors?.name}</FieldError>
           </Field>
           <Field>
             <FieldLabel htmlFor="signup-email">Email</FieldLabel>
             <Input id="signup-email" name="email" required type="email" />
+            <FieldError>{actionData?.fieldErrors?.email}</FieldError>
           </Field>
           <Field>
             <FieldLabel htmlFor="signup-password">Password</FieldLabel>
             <Input id="signup-password" minLength={8} name="password" required type="password" />
+            <FieldError>{actionData?.fieldErrors?.password}</FieldError>
           </Field>
           <Field>
             <FieldLabel htmlFor="signup-confirm-password">Confirm password</FieldLabel>
@@ -66,9 +107,10 @@ export default function SignUpRoute() {
               required
               type="password"
             />
+            <FieldError>{actionData?.fieldErrors?.confirmPassword}</FieldError>
           </Field>
         </FieldGroup>
-        {actionData?.error && <p className="text-sm text-red-600">{actionData.error}</p>}
+        <FieldError>{actionData?.formError}</FieldError>
         <FormSubmitButton>Sign up</FormSubmitButton>
       </Form>
       <p className="mt-3 text-sm">

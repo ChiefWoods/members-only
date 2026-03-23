@@ -1,13 +1,16 @@
 import { Form, redirect, useActionData } from "react-router";
 import { FormSubmitButton } from "~/components/form-submit-button";
-import { Field, FieldGroup, FieldLabel } from "~/components/ui/field";
+import { Field, FieldError, FieldGroup, FieldLabel } from "~/components/ui/field";
 import { Input } from "~/components/ui/input";
 import { Textarea } from "~/components/ui/textarea";
 import { prisma } from "~/lib/prisma.server";
 import { requireUser } from "~/lib/guards.server";
 
 type ActionData = {
-  error?: string;
+  fieldErrors?: {
+    title?: string;
+    body?: string;
+  };
 };
 
 export async function loader({ request }: { request: Request }) {
@@ -21,8 +24,12 @@ export async function action({ request }: { request: Request }) {
   const title = String(formData.get("title") ?? "").trim();
   const body = String(formData.get("body") ?? "").trim();
 
-  if (!title || !body) {
-    return { error: "Title and message body are required." } satisfies ActionData;
+  const fieldErrors: ActionData["fieldErrors"] = {};
+  if (!title) fieldErrors.title = "Title is required.";
+  if (!body) fieldErrors.body = "Message body is required.";
+
+  if (Object.keys(fieldErrors).length > 0) {
+    return { fieldErrors } satisfies ActionData;
   }
 
   await prisma.message.create({
@@ -47,13 +54,14 @@ export default function NewMessageRoute() {
           <Field>
             <FieldLabel htmlFor="message-title">Title</FieldLabel>
             <Input id="message-title" maxLength={120} name="title" required type="text" />
+            <FieldError>{actionData?.fieldErrors?.title}</FieldError>
           </Field>
           <Field>
             <FieldLabel htmlFor="message-body">Message</FieldLabel>
             <Textarea id="message-body" name="body" required />
+            <FieldError>{actionData?.fieldErrors?.body}</FieldError>
           </Field>
         </FieldGroup>
-        {actionData?.error && <p className="text-sm text-red-600">{actionData.error}</p>}
         <FormSubmitButton>Publish</FormSubmitButton>
       </Form>
     </main>

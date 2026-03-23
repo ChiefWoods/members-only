@@ -1,14 +1,17 @@
 import { Form, useActionData } from "react-router";
 import { PasscodeKind } from "../../generated/prisma/enums";
 import { FormSubmitButton } from "~/components/form-submit-button";
-import { Field, FieldGroup, FieldLabel } from "~/components/ui/field";
+import { Field, FieldError, FieldGroup, FieldLabel } from "~/components/ui/field";
 import { Input } from "~/components/ui/input";
 import { verifyPasscode } from "~/lib/passcodes.server";
 import { prisma } from "~/lib/prisma.server";
 import { requireUser } from "~/lib/guards.server";
 
 type ActionData = {
-  error?: string;
+  fieldErrors?: {
+    passcode?: string;
+  };
+  formError?: string;
   success?: string;
 };
 
@@ -18,12 +21,12 @@ export async function action({ request }: { request: Request }) {
   const passcode = String(formData.get("passcode") ?? "");
 
   if (!passcode) {
-    return { error: "Passcode is required." } satisfies ActionData;
+    return { fieldErrors: { passcode: "Passcode is required." } } satisfies ActionData;
   }
 
   const isValid = await verifyPasscode(PasscodeKind.MEMBER, passcode);
   if (!isValid) {
-    return { error: "Invalid passcode." } satisfies ActionData;
+    return { formError: "Invalid passcode." } satisfies ActionData;
   }
 
   await prisma.user.update({
@@ -48,9 +51,10 @@ export default function JoinClubRoute() {
           <Field>
             <FieldLabel htmlFor="member-passcode">Member passcode</FieldLabel>
             <Input id="member-passcode" name="passcode" required type="password" />
+            <FieldError>{actionData?.fieldErrors?.passcode}</FieldError>
           </Field>
         </FieldGroup>
-        {actionData?.error && <p className="text-sm text-red-600">{actionData.error}</p>}
+        <FieldError>{actionData?.formError}</FieldError>
         {actionData?.success && <p className="text-sm text-green-700">{actionData.success}</p>}
         <FormSubmitButton>Join</FormSubmitButton>
       </Form>

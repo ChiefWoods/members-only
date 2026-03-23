@@ -1,13 +1,17 @@
 import { Form, useActionData } from "react-router";
 import { PasscodeKind } from "../../generated/prisma/enums";
 import { FormSubmitButton } from "~/components/form-submit-button";
-import { Field, FieldGroup, FieldLabel } from "~/components/ui/field";
+import { Field, FieldError, FieldGroup, FieldLabel } from "~/components/ui/field";
 import { Input } from "~/components/ui/input";
 import { requireAdmin } from "~/lib/guards.server";
 import { setPasscode } from "~/lib/passcodes.server";
 
 type ActionData = {
-  error?: string;
+  fieldErrors?: {
+    memberPasscode?: string;
+    adminPasscode?: string;
+  };
+  formError?: string;
   success?: string;
 };
 
@@ -24,7 +28,7 @@ export async function action({ request }: { request: Request }) {
 
   if (!memberPasscode && !adminPasscode) {
     return {
-      error: "Provide at least one passcode to update.",
+      formError: "Provide at least one passcode to update.",
     } satisfies ActionData;
   }
 
@@ -61,13 +65,15 @@ export default function AdminPasscodesRoute() {
           <Field>
             <FieldLabel htmlFor="member-passcode">New member passcode</FieldLabel>
             <Input id="member-passcode" name="memberPasscode" type="password" />
+            <FieldError>{actionData?.fieldErrors?.memberPasscode}</FieldError>
           </Field>
           <Field>
             <FieldLabel htmlFor="admin-passcode">New admin passcode</FieldLabel>
             <Input id="admin-passcode" name="adminPasscode" type="password" />
+            <FieldError>{actionData?.fieldErrors?.adminPasscode}</FieldError>
           </Field>
         </FieldGroup>
-        {actionData?.error && <p className="text-sm text-red-600">{actionData.error}</p>}
+        <FieldError>{actionData?.formError}</FieldError>
         {actionData?.success && <p className="text-sm text-green-700">{actionData.success}</p>}
         <FormSubmitButton>Save passcodes</FormSubmitButton>
       </Form>
