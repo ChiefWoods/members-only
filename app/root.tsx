@@ -6,7 +6,16 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useRouteLoaderData,
 } from "react-router";
+import { buttonVariants } from "~/components/ui/button";
+import {
+  NavigationMenu,
+  NavigationMenuItem,
+  NavigationMenuList,
+} from "~/components/ui/navigation-menu";
+import { getViewerFromRequest } from "~/lib/session.server";
+import { cn } from "~/lib/utils";
 
 import type { Route } from "./+types/root";
 import "./app.css";
@@ -38,7 +47,19 @@ export const links: Route.LinksFunction = () => [
   },
 ];
 
+export async function loader({ request }: Route.LoaderArgs) {
+  const viewer = await getViewerFromRequest(request);
+  return { viewer };
+}
+
 export function Layout({ children }: { children: React.ReactNode }) {
+  const data = useRouteLoaderData<typeof loader>("root");
+  const viewer = data?.viewer;
+  const isAuthenticated = Boolean(viewer);
+  const canJoinClub = Boolean(viewer && !viewer.isMember && !viewer.isAdmin);
+  const canBecomeAdmin = Boolean(viewer && !viewer.isAdmin);
+  const canManagePasscodes = Boolean(viewer?.isAdmin);
+
   return (
     <html lang="en">
       <head>
@@ -53,15 +74,80 @@ export function Layout({ children }: { children: React.ReactNode }) {
             <Link className="text-lg font-semibold" to="/">
               Members Only
             </Link>
-            <nav className="flex gap-3 text-sm">
-              <Link to="/">Home</Link>
-              <Link to="/sign-up">Sign Up</Link>
-              <Link to="/login">Login</Link>
-              <Link to="/messages/new">New Message</Link>
-              <Link to="/join-club">Join Club</Link>
-              <Link to="/become-admin">Become Admin</Link>
-              <Link to="/admin/passcodes">Admin Passcodes</Link>
-            </nav>
+            {!isAuthenticated && (
+              <NavigationMenu>
+                <NavigationMenuList className="gap-2">
+                  <NavigationMenuItem>
+                    <Link
+                      className={cn(buttonVariants({ variant: "ghost" }), "cursor-pointer")}
+                      to="/sign-up"
+                    >
+                      Sign Up
+                    </Link>
+                  </NavigationMenuItem>
+                  <NavigationMenuItem>
+                    <Link
+                      className={cn(buttonVariants({ variant: "ghost" }), "cursor-pointer")}
+                      to="/login"
+                    >
+                      Login
+                    </Link>
+                  </NavigationMenuItem>
+                </NavigationMenuList>
+              </NavigationMenu>
+            )}
+            {isAuthenticated && (
+              <NavigationMenu>
+                <NavigationMenuList className="gap-2">
+                  <NavigationMenuItem>
+                    <Link
+                      className={cn(buttonVariants({ variant: "ghost" }), "cursor-pointer")}
+                      to="/messages/new"
+                    >
+                      New Message
+                    </Link>
+                  </NavigationMenuItem>
+                  {canJoinClub && (
+                    <NavigationMenuItem>
+                      <Link
+                        className={cn(buttonVariants({ variant: "ghost" }), "cursor-pointer")}
+                        to="/join-club"
+                      >
+                        Join Club
+                      </Link>
+                    </NavigationMenuItem>
+                  )}
+                  {canBecomeAdmin && (
+                    <NavigationMenuItem>
+                      <Link
+                        className={cn(buttonVariants({ variant: "ghost" }), "cursor-pointer")}
+                        to="/become-admin"
+                      >
+                        Become Admin
+                      </Link>
+                    </NavigationMenuItem>
+                  )}
+                  {canManagePasscodes && (
+                    <NavigationMenuItem>
+                      <Link
+                        className={cn(buttonVariants({ variant: "ghost" }), "cursor-pointer")}
+                        to="/admin/passcodes"
+                      >
+                        Admin Passcodes
+                      </Link>
+                    </NavigationMenuItem>
+                  )}
+                  <NavigationMenuItem>
+                    <Link
+                      className={cn(buttonVariants({ variant: "ghost" }), "cursor-pointer")}
+                      to="/logout"
+                    >
+                      Logout
+                    </Link>
+                  </NavigationMenuItem>
+                </NavigationMenuList>
+              </NavigationMenu>
+            )}
           </header>
           {children}
         </div>

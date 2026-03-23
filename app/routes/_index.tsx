@@ -1,5 +1,4 @@
-import { Form, Link, redirect, useLoaderData } from "react-router";
-import { auth } from "~/lib/auth.server";
+import { Form, Link, useLoaderData } from "react-router";
 import { prisma } from "~/lib/prisma.server";
 import { getViewerFromRequest } from "~/lib/session.server";
 
@@ -30,53 +29,24 @@ export async function loader({ request }: { request: Request }) {
   };
 }
 
-export async function action({ request }: { request: Request }) {
-  const formData = await request.formData();
-  const intent = formData.get("intent");
-
-  if (intent === "logout") {
-    await auth.api.signOut({
-      headers: request.headers,
-      asResponse: true,
-    });
-    return redirect("/");
-  }
-
-  return null;
-}
-
 export default function HomeRoute() {
   const data = useLoaderData<typeof loader>();
 
   return (
     <main className="space-y-4">
       <section className="rounded border p-4">
-        <h1 className="text-xl font-semibold">Members Only Message Board</h1>
+        <h1 className="text-xl font-semibold">Message Board</h1>
         <p className="text-sm text-neutral-600">
           Everyone sees messages. Members can also see authors and timestamps.
         </p>
-        {data.viewer ? (
+        {data.viewer && (
           <div className="mt-3 flex items-center gap-3 text-sm">
             <span>
               Signed in as <strong>{data.viewer.email}</strong>
             </span>
-            <Form method="post">
-              <input name="intent" type="hidden" value="logout" />
-              <button className="underline" type="submit">
-                Logout
-              </button>
-            </Form>
-          </div>
-        ) : (
-          <div className="mt-3 text-sm">
-            <Link className="underline" to="/login">
-              Log in
-            </Link>{" "}
-            or{" "}
-            <Link className="underline" to="/sign-up">
-              create an account
+            <Link className="underline" to="/logout">
+              Logout
             </Link>
-            .
           </div>
         )}
       </section>
@@ -99,7 +69,10 @@ export default function HomeRoute() {
 
             {data.canDelete && (
               <Form action={`/messages/${message.id}/delete`} method="post">
-                <button className="mt-2 text-sm text-red-600 underline" type="submit">
+                <button
+                  className="mt-2 cursor-pointer text-sm text-red-600 underline"
+                  type="submit"
+                >
                   Delete
                 </button>
               </Form>

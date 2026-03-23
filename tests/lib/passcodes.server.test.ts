@@ -3,13 +3,17 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { PasscodeKind } from "../../generated/prisma/enums";
 import { setPasscode, verifyPasscode } from "~/lib/passcodes.server";
 import { hashSecret, safeEqualText, verifySecret } from "~/lib/password.server";
-import { prisma } from "~/lib/prisma.server";
+
+const { findUniqueMock, upsertMock } = vi.hoisted(() => ({
+  findUniqueMock: vi.fn(),
+  upsertMock: vi.fn(),
+}));
 
 vi.mock("~/lib/prisma.server", () => ({
   prisma: {
     passcode: {
-      findUnique: vi.fn(),
-      upsert: vi.fn(),
+      findUnique: findUniqueMock,
+      upsert: upsertMock,
     },
   },
 }));
@@ -20,7 +24,6 @@ vi.mock("~/lib/password.server", () => ({
   safeEqualText: vi.fn(),
 }));
 
-const mockedPrisma = vi.mocked(prisma);
 const mockedHashSecret = vi.mocked(hashSecret);
 const mockedVerifySecret = vi.mocked(verifySecret);
 const mockedSafeEqualText = vi.mocked(safeEqualText);
@@ -30,15 +33,15 @@ describe("passcodes.server", () => {
 
   beforeEach(() => {
     process.env = { ...envBackup };
-    mockedPrisma.passcode.findUnique.mockReset();
-    mockedPrisma.passcode.upsert.mockReset();
+    findUniqueMock.mockReset();
+    upsertMock.mockReset();
     mockedHashSecret.mockReset();
     mockedVerifySecret.mockReset();
     mockedSafeEqualText.mockReset();
   });
 
   it("verifyPasscode uses stored hash when present", async () => {
-    mockedPrisma.passcode.findUnique.mockResolvedValue({ codeHash: "stored-hash" } as never);
+    findUniqueMock.mockResolvedValue({ codeHash: "stored-hash" } as never);
     mockedVerifySecret.mockReturnValue(true);
 
     const result = await verifyPasscode(PasscodeKind.MEMBER, "candidate");
@@ -48,7 +51,7 @@ describe("passcodes.server", () => {
   });
 
   it("verifyPasscode falls back to env passcode when DB row missing", async () => {
-    mockedPrisma.passcode.findUnique.mockResolvedValue(null);
+    findUniqueMock.mockResolvedValue(null);
     process.env.MEMBER_PASSCODE = "fallback-member";
     mockedSafeEqualText.mockReturnValue(true);
 
@@ -59,7 +62,7 @@ describe("passcodes.server", () => {
   });
 
   it("verifyPasscode returns false when no DB and no env passcode", async () => {
-    mockedPrisma.passcode.findUnique.mockResolvedValue(null);
+    findUniqueMock.mockResolvedValue(null);
     delete process.env.ADMIN_PASSCODE;
 
     const result = await verifyPasscode(PasscodeKind.ADMIN, "candidate");
@@ -75,7 +78,7 @@ describe("passcodes.server", () => {
       updatedById: "user-1",
     });
 
-    expect(mockedPrisma.passcode.upsert).toHaveBeenCalledWith({
+    expect(upsertMock).toHaveBeenCalledWith({
       where: { kind: PasscodeKind.ADMIN },
       create: {
         kind: PasscodeKind.ADMIN,

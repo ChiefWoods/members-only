@@ -2,7 +2,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { action } from "~/routes/messages.$id.delete";
 import { requireAdmin } from "~/lib/guards.server";
-import { prisma } from "~/lib/prisma.server";
+
+const { deleteMessageMock } = vi.hoisted(() => ({
+  deleteMessageMock: vi.fn(),
+}));
 
 vi.mock("~/lib/guards.server", () => ({
   requireAdmin: vi.fn(),
@@ -11,18 +14,17 @@ vi.mock("~/lib/guards.server", () => ({
 vi.mock("~/lib/prisma.server", () => ({
   prisma: {
     message: {
-      delete: vi.fn(),
+      delete: deleteMessageMock,
     },
   },
 }));
 
 const mockedRequireAdmin = vi.mocked(requireAdmin);
-const mockedPrisma = vi.mocked(prisma);
 
 describe("messages.$id.delete action", () => {
   beforeEach(() => {
     mockedRequireAdmin.mockReset();
-    mockedPrisma.message.delete.mockReset();
+    deleteMessageMock.mockReset();
   });
 
   it("requires admin before deleting", async () => {
@@ -33,13 +35,13 @@ describe("messages.$id.delete action", () => {
       isMember: true,
       isAdmin: true,
     });
-    mockedPrisma.message.delete.mockResolvedValue({ id: "m1" } as never);
+    deleteMessageMock.mockResolvedValue({ id: "m1" } as never);
 
     const req = new Request("http://localhost/messages/m1/delete", { method: "POST" });
     const response = await action({ request: req, params: { id: "m1" } });
 
     expect(mockedRequireAdmin).toHaveBeenCalledWith(req);
-    expect(mockedPrisma.message.delete).toHaveBeenCalledWith({ where: { id: "m1" } });
+    expect(deleteMessageMock).toHaveBeenCalledWith({ where: { id: "m1" } });
     expect(response.status).toBe(302);
     expect(response.headers.get("Location")).toBe("/");
   });
@@ -55,6 +57,6 @@ describe("messages.$id.delete action", () => {
 
     const req = new Request("http://localhost/messages/delete", { method: "POST" });
     await expect(action({ request: req, params: {} })).rejects.toMatchObject({ status: 400 });
-    expect(mockedPrisma.message.delete).not.toHaveBeenCalled();
+    expect(deleteMessageMock).not.toHaveBeenCalled();
   });
 });
