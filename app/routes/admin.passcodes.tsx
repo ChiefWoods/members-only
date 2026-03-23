@@ -1,5 +1,6 @@
 import { Form, useActionData } from "react-router";
 import { PasscodeKind } from "../../generated/prisma/enums";
+import { CountdownRedirectNotice } from "~/components/countdown-redirect-notice";
 import { FormSubmitButton } from "~/components/form-submit-button";
 import { Field, FieldError, FieldGroup, FieldLabel } from "~/components/ui/field";
 import { Input } from "~/components/ui/input";
@@ -74,7 +75,10 @@ export default function AdminPasscodesRoute() {
           </Field>
         </FieldGroup>
         <FieldError>{actionData?.formError}</FieldError>
-        {actionData?.success && <p className="text-sm text-green-700">{actionData.success}</p>}
+        <CountdownRedirectNotice
+          active={Boolean(actionData?.success)}
+          message={actionData?.success ?? ""}
+        />
         <FormSubmitButton>Save passcodes</FormSubmitButton>
       </Form>
     </main>
