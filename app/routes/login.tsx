@@ -1,4 +1,4 @@
-import { Form, Link, redirect, useActionData } from "react-router";
+import { Form, Link, redirect, useActionData, useNavigation } from "react-router";
 import { FormSubmitButton } from "~/components/form-submit-button";
 import { Field, FieldError, FieldGroup, FieldLabel } from "~/components/ui/field";
 import { Input } from "~/components/ui/input";
@@ -58,6 +58,8 @@ export async function action({ request }: { request: Request }) {
 
 export default function LoginRoute() {
   const actionData = useActionData<ActionData>();
+  const navigation = useNavigation();
+  const isSubmitting = navigation.state === "submitting";
 
   return (
     <main className="mx-auto max-w-md rounded border p-4">
@@ -76,7 +78,7 @@ export default function LoginRoute() {
           </Field>
         </FieldGroup>
         <FieldError>{actionData?.formError}</FieldError>
-        <FormSubmitButton>Log in</FormSubmitButton>
+        <FormSubmitButton isSubmitting={isSubmitting}>Log in</FormSubmitButton>
       </Form>
       <p className="mt-3 text-sm">
         No account yet?{" "}
