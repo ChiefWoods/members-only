@@ -44,9 +44,6 @@ export default function HomeRoute() {
             <span>
               Signed in as <strong>{data.viewer.name}</strong>
             </span>
-            <Link className="underline" to="/logout">
-              Logout
-            </Link>
           </div>
         )}
       </section>
