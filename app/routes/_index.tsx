@@ -1,4 +1,16 @@
-import { Form, Link, useLoaderData } from "react-router";
+import { useEffect, useState } from "react";
+import { Form, Link, useFetcher, useLoaderData } from "react-router";
+import { FormSubmitButton } from "~/components/form-submit-button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "~/components/ui/dialog";
+import { Field, FieldError, FieldGroup, FieldLabel } from "~/components/ui/field";
+import { Input } from "~/components/ui/input";
+import { Textarea } from "~/components/ui/textarea";
 import { prisma } from "~/lib/prisma.server";
 import { getViewerFromRequest } from "~/lib/session.server";
 
@@ -31,6 +43,17 @@ export async function loader({ request }: { request: Request }) {
 
 export default function HomeRoute() {
   const data = useLoaderData<typeof loader>();
+  const [isNewMessageDialogOpen, setNewMessageDialogOpen] = useState(false);
+  const fetcher = useFetcher<{
+    fieldErrors?: { title?: string; body?: string };
+    success?: boolean;
+  }>();
+
+  useEffect(() => {
+    if (fetcher.data?.success) {
+      setNewMessageDialogOpen(false);
+    }
+  }, [fetcher.data?.success]);
 
   return (
     <main className="space-y-4">
@@ -40,10 +63,17 @@ export default function HomeRoute() {
           Everyone sees messages. Members can also see authors and timestamps.
         </p>
         {data.viewer && (
-          <div className="mt-3 flex items-center gap-3 text-sm">
+          <div className="mt-3 flex items-center justify-between gap-3 text-sm">
             <span>
               Signed in as <strong>{data.viewer.name}</strong>
             </span>
+            <button
+              className="cursor-pointer text-sm underline"
+              onClick={() => setNewMessageDialogOpen(true)}
+              type="button"
+            >
+              New Message
+            </button>
           </div>
         )}
       </section>
@@ -77,6 +107,45 @@ export default function HomeRoute() {
           </article>
         ))}
       </section>
+
+      <Dialog onOpenChange={setNewMessageDialogOpen} open={isNewMessageDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create a New Message</DialogTitle>
+            <DialogDescription>Share a short message with the clubhouse feed.</DialogDescription>
+          </DialogHeader>
+
+          {!data.viewer && (
+            <p className="text-sm">
+              You need to{" "}
+              <Link className="underline" to="/login">
+                log in
+              </Link>{" "}
+              to create a message.
+            </p>
+          )}
+
+          {data.viewer && (
+            <fetcher.Form action="/messages/new" className="space-y-3" method="post">
+              <FieldGroup>
+                <Field>
+                  <FieldLabel htmlFor="message-title">Title</FieldLabel>
+                  <Input id="message-title" maxLength={120} name="title" required type="text" />
+                  <FieldError>{fetcher.data?.fieldErrors?.title}</FieldError>
+                </Field>
+                <Field>
+                  <FieldLabel htmlFor="message-body">Message</FieldLabel>
+                  <Textarea id="message-body" name="body" required />
+                  <FieldError>{fetcher.data?.fieldErrors?.body}</FieldError>
+                </Field>
+              </FieldGroup>
+              <FormSubmitButton isSubmitting={fetcher.state === "submitting"}>
+                Publish
+              </FormSubmitButton>
+            </fetcher.Form>
+          )}
+        </DialogContent>
+      </Dialog>
     </main>
   );
 }

@@ -99,14 +99,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
             {isAuthenticated && (
               <NavigationMenu>
                 <NavigationMenuList className="gap-2">
-                  <NavigationMenuItem>
-                    <Link
-                      className={cn(buttonVariants({ variant: "ghost" }), "cursor-pointer")}
-                      to="/messages/new"
-                    >
-                      New Message
-                    </Link>
-                  </NavigationMenuItem>
                   {canJoinClub && (
                     <NavigationMenuItem>
                       <Link
