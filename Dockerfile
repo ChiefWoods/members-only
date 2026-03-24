@@ -1,4 +1,4 @@
-FROM oven/bun:1-alpine AS base
+FROM oven/bun:latest AS base
 WORKDIR /app
 
 FROM base AS development-dependencies-env
