@@ -88,13 +88,13 @@ export default function HomeRoute() {
         )}
       </section>
 
-      <section className="space-y-3">
+      <section className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
         {data.messages.length === 0 && (
-          <p className="rounded border p-4 text-sm">No messages yet.</p>
+          <p className="col-span-full rounded border p-4 text-sm">No messages yet.</p>
         )}
 
         {data.messages.map((message) => (
-          <article className="relative rounded border p-4" key={message.id}>
+          <article className="relative flex h-full flex-col rounded border p-4" key={message.id}>
             {data.canDelete && (
               <deleteFetcher.Form
                 action={`/messages/${message.id}/delete`}
@@ -117,7 +117,7 @@ export default function HomeRoute() {
             <p className="mt-2 whitespace-pre-wrap">{message.body}</p>
 
             {data.canSeeMetadata && (
-              <p className="mt-3 text-xs text-neutral-500">
+              <p className="mt-auto pt-3 text-xs text-neutral-500">
                 By {message.authorName} on {new Date(message.createdAt).toLocaleString()}
               </p>
             )}
