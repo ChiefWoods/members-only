@@ -7,6 +7,7 @@ RUN bun install --frozen-lockfile
 
 FROM base AS production-dependencies-env
 COPY package.json bun.lock /app/
+ENV HUSKY=0
 RUN bun install --frozen-lockfile --production
 
 FROM base AS build-env
