@@ -2,12 +2,13 @@ FROM oven/bun:latest AS base
 WORKDIR /app
 
 FROM base AS development-dependencies-env
+ENV HUSKY=0
 COPY package.json bun.lock /app/
 RUN bun install --frozen-lockfile
 
 FROM base AS production-dependencies-env
-COPY package.json bun.lock /app/
 ENV HUSKY=0
+COPY package.json bun.lock /app/
 RUN bun install --frozen-lockfile --production
 
 FROM base AS build-env
