@@ -12,6 +12,7 @@
     "lint:fix": "oxlint --fix",
     "fmt": "oxfmt",
     "fmt:check": "oxfmt --check",
+    "docker:build": "docker build --no-cache --progress=plain -t members-only:local .",
     "docker:db:up": "docker compose up -d db",
     "docker:db:start": "docker compose start db",
     "docker:db:stop": "docker compose stop db",
