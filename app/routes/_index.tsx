@@ -54,10 +54,10 @@ export default function HomeRoute() {
   const deleteFetcher = useFetcher<{ success?: boolean }>();
 
   useEffect(() => {
-    if (fetcher.data?.success) {
+    if (fetcher.state === "idle" && fetcher.data?.success) {
       setNewMessageDialogOpen(false);
     }
-  }, [fetcher.data?.success]);
+  }, [fetcher.state, fetcher.data]);
 
   useEffect(() => {
     if (deleteFetcher.data?.success) {
