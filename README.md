@@ -1,87 +1,128 @@
-# Welcome to React Router!
+# Members Only
 
-A modern, production-ready template for building full-stack React applications using React Router.
+![Preview](preview.png)
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/remix-run/react-router-templates/tree/main/default)
+Public message board for [The Odin Project](https://www.theodinproject.com/).
+
+[Source Repository](https://github.com/ChiefWoods/members-only)
 
 ## Features
 
-- 🚀 Server-side rendering
-- ⚡️ Hot Module Replacement (HMR)
-- 📦 Asset bundling and optimization
-- 🔄 Data loading and mutations
-- 🔒 TypeScript by default
-- 🎉 TailwindCSS for styling
-- 📖 [React Router docs](https://reactrouter.com/)
+- Write notes on a public message board
+- Join as a member to unlock exclusive access
+
+## Built With
+
+### Tech Stack
+
+- [![React](https://img.shields.io/badge/React-383936?style=for-the-badge&logo=react)](https://react.dev/)
+- [![React Router](https://img.shields.io/badge/ReactRouter-383936?style=for-the-badge&logo=reactrouter)](https://reactrouter.com/)
+- [![Prisma](https://img.shields.io/badge/Prisma-383936?style=for-the-badge&logo=prisma)](https://www.prisma.io/)
+- [![Shadcn](https://img.shields.io/badge/Shadcn-383936?style=for-the-badge&logo=shadcnui)](https://ui.shadcn.com/)
+- [![Vitest](https://img.shields.io/badge/Vitest-383936?style=for-the-badge&logo=vitest)](https://vitest.dev)
+- [![Docker](https://img.shields.io/badge/Docker-383936?style=for-the-badge&logo=docker)](https://www.docker.com/)
 
 ## Getting Started
 
-### Installation
+### Prerequisites
 
-Install the dependencies:
-
-```bash
-npm install
-```
-
-### Development
-
-Start the development server with HMR:
+Update your Bun toolkit to the latest version.
 
 ```bash
-npm run dev
+bun upgrade
 ```
 
-Your application will be available at `http://localhost:5173`.
+### Setup
 
-## Building for Production
-
-Create a production build:
+1. Clone the repository
 
 ```bash
-npm run build
+git clone https://github.com/ChiefWoods/members-only.git
 ```
 
-## Deployment
-
-### Docker Deployment
-
-To build and run using Docker:
+2. Install all dependencies
 
 ```bash
-docker build -t my-app .
-
-# Run the container
-docker run -p 3000:3000 my-app
+bun install
 ```
 
-The containerized application can be deployed to any platform that supports Docker, including:
+3. Create env file
 
-- AWS ECS
-- Google Cloud Run
-- Azure Container Apps
-- Digital Ocean App Platform
-- Fly.io
-- Railway
-
-### DIY Deployment
-
-If you're familiar with deploying Node applications, the built-in app server is production-ready.
-
-Make sure to deploy the output of `npm run build`
-
-```
-├── package.json
-├── package-lock.json (or pnpm-lock.yaml, or bun.lockb)
-├── build/
-│   ├── client/    # Static assets
-│   └── server/    # Server-side code
+```bash
+cp .env.example .env.development
 ```
 
-## Styling
+4. Start local Postgres (dev)
 
-This template comes with [Tailwind CSS](https://tailwindcss.com/) already configured for a simple default starting experience. You can use whatever CSS framework you prefer.
+```bash
+bun run docker:db:up
+```
 
----
+5. Apply migrations
 
-Built with ❤️ using React Router.
+```bash
+bun run db:migrate
+```
+
+6. Seed initial data (optional but recommended for first run)
+
+```bash
+bun run db:seed
+```
+
+7. Start development server
+
+```bash
+bun run dev
+```
+
+8. Build project
+
+```bash
+bun run build
+```
+
+9. Preview build
+
+```bash
+bun run start
+```
+
+### Testing
+
+1. Create env file
+
+```bash
+cp .env.example .env.test
+```
+
+2. Start local Postgres (test)
+
+```bash
+bun run docker:test-db:up
+```
+
+3. Test project
+
+```bash
+bun run test
+```
+
+## Issues
+
+View the [open issues](https://github.com/ChiefWoods/members-only/issues) for a full list of proposed features and known bugs.
+
+## Acknowledgements
+
+### Resources
+
+- [Shields.io](https://shields.io/)
+- [Lucide](https://lucide.dev/)
+
+### Hosting
+
+- [Railway](https://railway.com/)
+
+## Contact
+
+[chii.yuen@hotmail.com](mailto:chii.yuen@hotmail.com)
