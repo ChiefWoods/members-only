@@ -7,6 +7,7 @@ import { Input } from "~/components/ui/input";
 import { verifyPasscode } from "~/lib/passcodes.server";
 import { prisma } from "~/lib/prisma.server";
 import { requireUser } from "~/lib/guards.server";
+import { parseFormData, passcodeEntrySchema } from "~/lib/validation.server";
 
 type ActionData = {
   fieldErrors?: {
@@ -19,11 +20,14 @@ type ActionData = {
 export async function action({ request }: { request: Request }) {
   const viewer = await requireUser(request);
   const formData = await request.formData();
-  const passcode = String(formData.get("passcode") ?? "");
-
-  if (!passcode) {
-    return { fieldErrors: { passcode: "Passcode is required." } } satisfies ActionData;
+  const parsed = parseFormData(passcodeEntrySchema, formData);
+  if ("fieldErrors" in parsed) {
+    return {
+      fieldErrors: parsed.fieldErrors as ActionData["fieldErrors"],
+      formError: parsed.formError,
+    } satisfies ActionData;
   }
+  const { passcode } = parsed.data;
 
   const isValid = await verifyPasscode(PasscodeKind.MEMBER, passcode);
   if (!isValid) {

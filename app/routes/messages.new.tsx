@@ -1,12 +1,14 @@
 import { redirect } from "react-router";
 import { prisma } from "~/lib/prisma.server";
 import { requireUser } from "~/lib/guards.server";
+import { newMessageSchema, parseFormData } from "~/lib/validation.server";
 
 type ActionData = {
   fieldErrors?: {
     title?: string;
     body?: string;
   };
+  formError?: string;
 };
 
 export async function loader({ request }: { request: Request }) {
@@ -17,16 +19,14 @@ export async function loader({ request }: { request: Request }) {
 export async function action({ request }: { request: Request }) {
   const viewer = await requireUser(request);
   const formData = await request.formData();
-  const title = String(formData.get("title") ?? "").trim();
-  const body = String(formData.get("body") ?? "").trim();
-
-  const fieldErrors: ActionData["fieldErrors"] = {};
-  if (!title) fieldErrors.title = "Title is required.";
-  if (!body) fieldErrors.body = "Message body is required.";
-
-  if (Object.keys(fieldErrors).length > 0) {
-    return { fieldErrors } satisfies ActionData;
+  const parsed = parseFormData(newMessageSchema, formData);
+  if ("fieldErrors" in parsed) {
+    return {
+      fieldErrors: parsed.fieldErrors as ActionData["fieldErrors"],
+      formError: parsed.formError,
+    } satisfies ActionData;
   }
+  const { title, body } = parsed.data;
 
   await prisma.message.create({
     data: {

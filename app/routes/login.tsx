@@ -4,6 +4,7 @@ import { Field, FieldError, FieldGroup, FieldLabel } from "~/components/ui/field
 import { Input } from "~/components/ui/input";
 import { auth } from "~/lib/auth.server";
 import { prisma } from "~/lib/prisma.server";
+import { loginSchema, parseFormData } from "~/lib/validation.server";
 
 type ActionData = {
   formError?: string;
@@ -15,17 +16,14 @@ type ActionData = {
 
 export async function action({ request }: { request: Request }) {
   const formData = await request.formData();
-  const email = String(formData.get("email") ?? "")
-    .trim()
-    .toLowerCase();
-  const password = String(formData.get("password") ?? "");
-
-  const fieldErrors: ActionData["fieldErrors"] = {};
-  if (!email) fieldErrors.email = "Email is required.";
-  if (!password) fieldErrors.password = "Password is required.";
-  if (Object.keys(fieldErrors).length > 0) {
-    return { fieldErrors } satisfies ActionData;
+  const parsed = parseFormData(loginSchema, formData);
+  if ("fieldErrors" in parsed) {
+    return {
+      fieldErrors: parsed.fieldErrors as ActionData["fieldErrors"],
+      formError: parsed.formError,
+    } satisfies ActionData;
   }
+  const { email, password } = parsed.data;
 
   const existingUser = await prisma.user.findUnique({
     where: { email },

@@ -3,6 +3,7 @@ import { FormSubmitButton } from "~/components/form-submit-button";
 import { Field, FieldError, FieldGroup, FieldLabel } from "~/components/ui/field";
 import { Input } from "~/components/ui/input";
 import { auth } from "~/lib/auth.server";
+import { parseFormData, signUpSchema } from "~/lib/validation.server";
 
 type ActionData = {
   formError?: string;
@@ -16,30 +17,14 @@ type ActionData = {
 
 export async function action({ request }: { request: Request }) {
   const formData = await request.formData();
-  const name = String(formData.get("name") ?? "").trim();
-  const email = String(formData.get("email") ?? "")
-    .trim()
-    .toLowerCase();
-  const password = String(formData.get("password") ?? "");
-  const confirmPassword = String(formData.get("confirmPassword") ?? "");
-
-  const fieldErrors: ActionData["fieldErrors"] = {};
-  if (!name) fieldErrors.name = "Name is required.";
-  if (!email) fieldErrors.email = "Email is required.";
-  if (!password) fieldErrors.password = "Password is required.";
-  if (!confirmPassword) fieldErrors.confirmPassword = "Confirm password is required.";
-
-  if (Object.keys(fieldErrors).length > 0) {
-    return { fieldErrors } satisfies ActionData;
-  }
-  if (password !== confirmPassword) {
-    return { fieldErrors: { confirmPassword: "Passwords do not match." } } satisfies ActionData;
-  }
-  if (password.length < 8) {
+  const parsed = parseFormData(signUpSchema, formData);
+  if ("fieldErrors" in parsed) {
     return {
-      fieldErrors: { password: "Password must be at least 8 characters." },
+      fieldErrors: parsed.fieldErrors as ActionData["fieldErrors"],
+      formError: parsed.formError,
     } satisfies ActionData;
   }
+  const { name, email, password } = parsed.data;
 
   try {
     const response = await auth.api.signUpEmail({

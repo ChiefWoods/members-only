@@ -6,6 +6,7 @@ import { Field, FieldError, FieldGroup, FieldLabel } from "~/components/ui/field
 import { Input } from "~/components/ui/input";
 import { requireAdmin } from "~/lib/guards.server";
 import { setPasscode } from "~/lib/passcodes.server";
+import { adminPasscodesSchema, parseFormData } from "~/lib/validation.server";
 
 type ActionData = {
   fieldErrors?: {
@@ -24,14 +25,15 @@ export async function loader({ request }: { request: Request }) {
 export async function action({ request }: { request: Request }) {
   const admin = await requireAdmin(request);
   const formData = await request.formData();
-  const memberPasscode = String(formData.get("memberPasscode") ?? "").trim();
-  const adminPasscode = String(formData.get("adminPasscode") ?? "").trim();
-
-  if (!memberPasscode && !adminPasscode) {
+  const parsed = parseFormData(adminPasscodesSchema, formData);
+  if ("fieldErrors" in parsed) {
     return {
-      formError: "Provide at least one passcode to update.",
+      fieldErrors: parsed.fieldErrors as ActionData["fieldErrors"],
+      formError: parsed.formError,
     } satisfies ActionData;
   }
+  const memberPasscode = parsed.data.memberPasscode ?? "";
+  const adminPasscode = parsed.data.adminPasscode ?? "";
 
   if (memberPasscode) {
     await setPasscode({
