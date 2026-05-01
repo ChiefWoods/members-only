@@ -88,13 +88,16 @@ export default function HomeRoute() {
         )}
       </section>
 
-      <section className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
+      <section className="grid grid-cols-[repeat(auto-fit,minmax(22rem,1fr))] gap-3">
         {data.messages.length === 0 && (
           <p className="col-span-full rounded border p-4 text-sm">No messages yet.</p>
         )}
 
         {data.messages.map((message) => (
-          <article className="relative flex h-full flex-col rounded border p-4" key={message.id}>
+          <article
+            className="relative flex h-full min-w-0 flex-col rounded border p-4"
+            key={message.id}
+          >
             {data.canDelete && (
               <deleteFetcher.Form
                 action={`/messages/${message.id}/delete`}
@@ -114,7 +117,7 @@ export default function HomeRoute() {
               </deleteFetcher.Form>
             )}
             <h2 className="font-semibold">{message.title}</h2>
-            <p className="mt-2 whitespace-pre-wrap">{message.body}</p>
+            <p className="mt-2 whitespace-pre-wrap wrap-break-word">{message.body}</p>
 
             {data.canSeeMetadata && (
               <p className="mt-auto pt-3 text-xs text-neutral-500">
