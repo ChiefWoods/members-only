@@ -119,10 +119,6 @@ View the [open issues](https://github.com/ChiefWoods/members-only/issues) for a 
 - [Shields.io](https://shields.io/)
 - [Lucide](https://lucide.dev/)
 
-### Hosting
-
-- [Railway](https://railway.com/)
-
 ## Contact
 
 [chii.yuen@hotmail.com](mailto:chii.yuen@hotmail.com)
